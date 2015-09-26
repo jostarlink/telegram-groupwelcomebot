@@ -59,7 +59,7 @@ func (plugin *pluginWatcher) allEvents(handler foxbot.Handler) error {
 
 	if message.NewChatParticipant.ID != 0 {
 		text := strings.Replace(c["new"], "USER_NAME", message.NewChatParticipant.String(), -1)
-		text = strings.Replace(text, "RULES_LINK", "http://localhost:8080/rules/"+strconv.Itoa(message.Chat.ID), -1)
+		text = strings.Replace(text, "RULES_LINK", "http://groupwelcomebot.xyz/rules/"+strconv.Itoa(message.Chat.ID), -1)
 
 		msg := tgbotapi.NewMessage(message.Chat.ID, text)
 		msg.ParseMode = tgbotapi.ModeMarkdown
@@ -72,7 +72,7 @@ func (plugin *pluginWatcher) allEvents(handler foxbot.Handler) error {
 
 	if message.LeftChatParticipant.ID != 0 {
 		text := strings.Replace(c["left"], "USER_NAME", message.NewChatParticipant.String(), -1)
-		text = strings.Replace(text, "RULES_LINK", "http://localhost:8080/rules/"+strconv.Itoa(message.Chat.ID), -1)
+		text = strings.Replace(text, "RULES_LINK", "http://groupwelcomebot.xyz/rules/"+strconv.Itoa(message.Chat.ID), -1)
 
 		msg := tgbotapi.NewMessage(message.Chat.ID, text)
 		msg.ParseMode = tgbotapi.ModeMarkdown
@@ -109,7 +109,7 @@ func (plugin *pluginWatcher) saveRules(handler foxbot.Handler) error {
 }
 
 func (plugin *pluginWatcher) rules(handler foxbot.Handler) error {
-	msg := tgbotapi.NewMessage(handler.Update.Message.Chat.ID, "Please visit http://localhost:8080/rules/"+strconv.Itoa(handler.Update.Message.Chat.ID))
+	msg := tgbotapi.NewMessage(handler.Update.Message.Chat.ID, "Please visit http://groupwelcomebot.xyz/rules/"+strconv.Itoa(handler.Update.Message.Chat.ID))
 	msg.ReplyToMessageID = handler.Update.Message.MessageID
 
 	_, err := handler.API.SendMessage(msg)
