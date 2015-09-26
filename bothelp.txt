@@ -1,0 +1,19 @@
+*Help for GroupWelcomeBot*
+
+Basic commands:
+/start - initializes the bot for this channel
+/enable - starts sending messages to this channel
+/disable - stops sending messages to this channel
+/set - sets a config value for your channel
+/setrules - set rules text to send to users when they do /rules
+/rules - show channel rules
+
+Set commands:
+There are a few different values you can set.
+All messages related to a user joining (new, left) will replace USER\_NAME with the user's actual name. Additionally, RULES\_LINK will be replaced with a link to your rules.
+
+new - _message sent when a new user joins the channel_
+left - _message sent when a user leaves or is kicked from the channel_
+
+For example, to make it say "Hi Syfaro! Please read our rules: google.com" when someone joins, you can run the following command:
+/set new Hi USER\_NAME! Please read our rules: RULES\_LINK

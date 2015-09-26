@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+
+  <title>Group Welcome Bot</title>
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.5/sandstone/bootstrap.min.css">
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-12 col-md-6 col-md-offset-3">
+        <h1>{{ .Title }}</h1>
+
+        <h2>Enabled: {{ .Status }}</h2>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-sm-12 col-md-6 col-md-offset-3">
+        <h2>Channel options</h2>
+
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Key</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{ range $index, $element := .Config }}
+              <tr><td>{{ $index }}</td><td>{{ $element }}</td></tr>
+            {{ end }}
+          </tbody>
+        </table>
+
+        <h3>Show demo data</h3>
+
+        <form class="form-inline">
+          <div class="form-group">
+            <input type="text" class="form-control" id="username" placeholder="Demo username">
+          </div>
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" id="show"> Show</input>
+            </label>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (function () {
+    'use strict';
+
+    var rows = document.querySelectorAll('tbody tr td:nth-child(2)');
+    var show = document.querySelector('#show');
+    var username = document.querySelector('#username');
+
+    var escapeHTML = function (text) {
+      var map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+      };
+
+      return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+    };
+
+    var decodeHTML = function (input) {
+      var e = document.createElement('div');
+      e.innerHTML = input;
+      return e.childNodes.length === 0 ? "" : e.childNodes[0].nodeValue;
+    }
+
+    var showExampleData = function (update) {
+      if (update === undefined) {
+        update = false;
+      }
+
+      for (var i = 0; i < rows.length; i++) {
+        var row = rows[i];
+
+        if (update) {
+          row.innerHTML = decodeHTML(row.dataset.original);
+        } else {
+          row.dataset.original = escapeHTML(row.innerHTML);
+        }
+
+        row.innerHTML = row.innerHTML.replace('USER_NAME', username.value);
+        row.innerHTML = row.innerHTML.replace('RULES_LINK', window.location.href.replace('settings', 'rules'));
+      }
+    };
+
+    var hideExampleData = function () {
+      for (var i = 0; i < rows.length; i++) {
+        var row = rows[i];
+
+        row.innerHTML = decodeHTML(row.dataset.original);
+      }
+    };
+
+    show.addEventListener('click', function (e) {
+      if (e.target.checked) {
+        showExampleData();
+      } else {
+        hideExampleData();
+      }
+    });
+
+    username.addEventListener('keyup', function (e) {
+      if (show.checked) {
+        showExampleData(true);
+      }
+    });
+  }());
+  </script>
+</body>
+</html>
