@@ -15,6 +15,7 @@ func main() {
 		&pluginAdmin{},
 		&pluginWatcher{},
 		&pluginHelp{},
+		&pluginUser{},
 	})
 
 	storage = &pluginStorage{
@@ -33,7 +34,7 @@ func main() {
 	router.GET("/rules/:channel", rules)
 	router.GET("/settings/:channel", settings)
 
-	go http.ListenAndServe(":8080", router)
+	go http.ListenAndServe(":4736", router)
 
 	tg := foxbot.LoadBot()
 	bot = foxbot.GetBot()

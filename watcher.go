@@ -3,12 +3,14 @@ package main
 import (
 	"github.com/ixchi/foxbot/bot"
 	"github.com/syfaro/telegram-bot-api"
+	"regexp"
 	"strconv"
 	"strings"
 )
 
 type pluginWatcher struct {
 	waitingRules *foxbot.WaitingForText
+	waitingChan  *foxbot.WaitingForText
 }
 
 func (plugin *pluginWatcher) Name() string {
@@ -27,6 +29,7 @@ func (plugin *pluginWatcher) GetCommands() []*foxbot.Command {
 			Example: "/rules",
 			Command: "rules",
 			Handler: plugin.rules,
+			Waiting: plugin.waitingChan,
 		},
 		&foxbot.Command{
 			Name:    "Set Rules",
@@ -81,6 +84,8 @@ func (plugin *pluginWatcher) allEvents(handler foxbot.Handler) error {
 		return err
 	}
 
+	storage.AddChannelToUser(handler.Update.Message.Chat.Title, handler.Update.Message.Chat.ID, handler.Update.Message.From.ID)
+
 	return nil
 }
 
@@ -109,13 +114,59 @@ func (plugin *pluginWatcher) saveRules(handler foxbot.Handler) error {
 }
 
 func (plugin *pluginWatcher) rules(handler foxbot.Handler) error {
-	msg := tgbotapi.NewMessage(handler.Update.Message.Chat.ID, "Please visit http://groupwelcomebot.xyz/rules/"+strconv.Itoa(handler.Update.Message.Chat.ID))
-	msg.ReplyToMessageID = handler.Update.Message.MessageID
+	if handler.Update.Message.IsGroup() {
+		msg := tgbotapi.NewMessage(handler.Update.Message.Chat.ID, "Please visit http://groupwelcomebot.xyz/rules/"+strconv.Itoa(handler.Update.Message.Chat.ID))
+		msg.ReplyToMessageID = handler.Update.Message.MessageID
 
-	_, err := handler.API.SendMessage(msg)
-	if err != nil {
+		_, err := handler.API.SendMessage(msg)
 		return err
 	}
 
+	myChannels := storage.GetUserChannels(handler.Update.Message.From.ID)
+	var keyboard [][]string
+
+	for k, c := range myChannels {
+		keyboard = append(keyboard, []string{c + " (" + k + ")"})
+	}
+
+	msg := tgbotapi.NewMessage(handler.Update.Message.Chat.ID, "For which channel would you like to see rules?")
+	msg.ReplyMarkup = &tgbotapi.ReplyKeyboardMarkup{
+		ResizeKeyboard:  true,
+		OneTimeKeyboard: true,
+		Selective:       true,
+		Keyboard:        keyboard,
+	}
+
+	plugin.waitingChan = &foxbot.WaitingForText{
+		IsWaiting: true,
+		ChatID:    handler.Update.Message.Chat.ID,
+		UserID:    handler.Update.Message.From.ID,
+		AnyInChat: false,
+		Handler:   plugin.getRules,
+	}
+
+	_, err := handler.API.SendMessage(msg)
+	return err
+}
+
+func (plugin *pluginWatcher) getRules(handler foxbot.Handler) error {
+	msg := tgbotapi.NewMessage(handler.Update.Message.Chat.ID, "")
+	msg.ReplyMarkup = &tgbotapi.ReplyKeyboardHide{
+		HideKeyboard: true,
+		Selective:    true,
+	}
+
+	r := regexp.MustCompile(`(-\d+)`)
+	ch := r.FindString(handler.Update.Message.Text)
+
+	c := storage.GetByString(ch)
+
+	if val, ok := c["rules"]; ok {
+		msg.Text = val
+	} else {
+		msg.Text = "Huh, we don't seem to have this channel."
+	}
+
+	_, err := handler.API.SendMessage(msg)
 	return err
 }
