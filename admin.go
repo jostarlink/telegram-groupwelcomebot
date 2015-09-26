@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"github.com/ixchi/foxbot/bot"
 	"github.com/syfaro/telegram-bot-api"
 	"strings"
@@ -44,6 +45,25 @@ func (plugin *pluginAdmin) save(handler foxbot.Handler) error {
 	return storage.Save()
 }
 
+func (plugin *pluginAdmin) botFather(handler foxbot.Handler) error {
+	text := &bytes.Buffer{}
+	for _, plugin := range bot.Plugins {
+		for _, cmd := range plugin.GetCommands() {
+			if cmd.Command != "" && cmd.Name != "" && cmd.Help != "" {
+				text.WriteString(cmd.Command)
+				text.WriteString(" - ")
+				text.WriteString(cmd.Help)
+				text.WriteString("\n")
+			}
+		}
+	}
+
+	msg := tgbotapi.NewMessage(handler.Update.Message.Chat.ID, text.String())
+	_, err := handler.API.SendMessage(msg)
+
+	return err
+}
+
 func (plugin *pluginAdmin) GetCommands() []*foxbot.Command {
 	return []*foxbot.Command{
 		&foxbot.Command{
@@ -80,6 +100,13 @@ func (plugin *pluginAdmin) GetCommands() []*foxbot.Command {
 			Example: "/set new Hello, new user called USER_NAME!",
 			Command: "set",
 			Handler: plugin.set,
+		},
+		&foxbot.Command{
+			Name:    "BotFather Help",
+			Help:    "Displays all commands, formatted for BotFather",
+			Example: "/botfather",
+			Command: "botfather",
+			Handler: plugin.botFather,
 		},
 	}
 }
