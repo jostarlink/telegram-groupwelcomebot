@@ -74,7 +74,7 @@ func (plugin *pluginWatcher) allEvents(handler foxbot.Handler) error {
 	}
 
 	if message.LeftChatParticipant.ID != 0 {
-		text := strings.Replace(c["left"], "USER_NAME", message.NewChatParticipant.String(), -1)
+		text := strings.Replace(c["left"], "USER_NAME", message.LeftChatParticipant.String(), -1)
 		text = strings.Replace(text, "RULES_LINK", "http://groupwelcomebot.xyz/rules/"+strconv.Itoa(message.Chat.ID), -1)
 
 		msg := tgbotapi.NewMessage(message.Chat.ID, text)
