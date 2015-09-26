@@ -17,3 +17,5 @@ left - _message sent when a user leaves or is kicked from the channel_
 
 For example, to make it say "Hi Syfaro! Please read our rules: google.com" when someone joins, you can run the following command:
 /set new Hi USER\_NAME! Please read our rules: RULES\_LINK
+
+If you need more help, please open an issue on [GitHub](https://github.com/Syfaro/telegram-groupwelcomebot).
