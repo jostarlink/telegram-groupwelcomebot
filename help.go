@@ -18,8 +18,8 @@ func (plugin *pluginHelp) GetCommands() []*foxbot.Command {
 		&foxbot.Command{
 			Name:    "Bot Help",
 			Help:    "Help for using this bot",
-			Example: "/bothelp",
-			Command: "bothelp",
+			Example: "/help",
+			Command: "help",
 			Handler: plugin.botHelp,
 		},
 	}
